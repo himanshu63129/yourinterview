@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>yourInterviewer — Results</title>
+  <link rel="stylesheet" href="{% static 'yourinterviewer/css/style.css' %}"/>
+</head>
+<body>
+
+<header>
+  <div class="logo">your<span>Interviewer</span></div>
+  <div class="badge">{{ session.domain }}</div>
+</header>
+
+<main class="results-main">
+<div class="results-wrap">
+
+  <!-- Top heading -->
+  <div class="results-top">
+    <h2>Interview Complete 🎉</h2>
+    <p class="results-meta">
+      {{ session.domain }}{% if session.language %} ({{ session.language }}){% endif %}
+      &nbsp;·&nbsp;
+      {{ session.rounds|length }} round{{ session.rounds|length|pluralize }}
+      &nbsp;·&nbsp;
+      {{ session.questions_per_round }} questions per round
+      &nbsp;·&nbsp;
+      {{ session.created_at|date:"N j, Y · g:i A" }}
+    </p>
+  </div>
+
+  <!-- Overall grade card -->
+  <div class="card grade-card">
+    <div class="grade-letter
+      {% if session.percentage >= 70 %}g-good
+      {% elif session.percentage >= 50 %}g-ok
+      {% else %}g-bad{% endif %}">
+      {{ session.grade }}
+    </div>
+    <div class="grade-pts">
+      {{ session.total_score|floatformat:0 }}
+      /
+      {{ session.max_score|floatformat:0 }} pts
+      &nbsp;({{ session.percentage }}%)
+    </div>
+    <div class="grade-verdict" id="verdict">
+      <span class="verdict-loading">Generating AI verdict…</span>
+    </div>
+  </div>
+
+  <!-- Round breakdown -->
+  <div class="round-breakdown">
+    {% for round, data in rounds_data.items %}
+    <div class="card rb-card">
+      <div class="rb-label rs-{{ round }}">
+        {{ round|title }} Round
+      </div>
+      <div class="rb-score">
+        {{ data.total }}
+        <span class="rb-max">/ {{ data.max }} pts</span>
+      </div>
+      {% if data.max > 0 %}
+      <div class="rb-bar-track">
+        <div class="rb-bar rs-fill-{{ round }}"
+             style="width: {% widthratio data.total data.max 100 %}%">
+        </div>
+      </div>
+      <div class="rb-pct">
+        {% widthratio data.total data.max 100 %}%
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Per question detail — one section per round -->
+  {% for round, data in rounds_data.items %}
+  <div class="qa-section">
+
+    <div class="qa-section-hd rs-{{ round }}">
+      {{ round|title }} Round — Question by Question
+    </div>
+
+    {% for qa in data.answers %}
+    <div class="card qa-card">
+
+      <div class="qa-top">
+        <span class="qa-num">Q{{ qa.question_number }}</span>
+        <div class="qa-scores-row">
+          <span class="qa-score-chip
+            {% if qa.score >= 8 %}s-good
+            {% elif qa.score >= 5 %}s-ok
+            {% else %}s-bad{% endif %}">
+            Score: {{ qa.score }}/10
+          </span>
+          <span class="qa-score-chip s-neutral">
+            Clarity: {{ qa.clarity }}/10
+          </span>
+          <span class="qa-score-chip s-neutral">
+            Depth: {{ qa.depth }}/10
+          </span>
+        </div>
+      </div>
+
+      <p class="qa-q">{{ qa.question_text }}</p>
+
+      <div class="qa-a-wrap">
+        <div class="micro-label">Your Answer</div>
+        <p class="qa-a">
+          {{ qa.answer_text|default:"(no answer recorded)" }}
+        </p>
+      </div>
+
+      <div class="qa-fb-wrap">
+        <div class="micro-label">AI Feedback</div>
+        <div class="qa-fb">{{ qa.feedback }}</div>
+      </div>
+
+    </div>
+    {% empty %}
+    <p class="muted-note">No answers recorded for this round.</p>
+    {% endfor %}
+
+  </div>
+  {% endfor %}
+
+  <!-- Action buttons -->
+  <div class="results-actions">
+    <a href="/" class="cta-btn results-cta">
+      Start New Interview
+    </a>
+  </div>
+
+</div>
+</main>
+
+<!-- Fetch AI verdict on page load -->
+<script>
+(async () => {
+  const perRoundScores = {
+    {% for round, data in rounds_data.items %}
+    "{{ round }}": [
+      {% for qa in data.answers %}
+        {{ qa.score }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    {% endfor %}
+  };
+
+  try {
+    const res  = await fetch('/api/{{ session.id }}/finish/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ per_round_scores: perRoundScores }),
+    });
+    const data = await res.json();
+    document.getElementById('verdict').textContent = data.verdict || '';
+  } catch {
+    document.getElementById('verdict').textContent =
+      'Great effort! Review your answers above to keep improving.';
+  }
+})();
+</script>
+
+</body>
+</html>

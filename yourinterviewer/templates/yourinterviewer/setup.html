@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>yourInterviewer</title>
+  <link rel="stylesheet" href="{% static 'yourinterviewer/css/style.css' %}"/>
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between;">
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <div class="logo">your<span>Interviewer</span></div>
+    <div class="badge">Gemini 2.5 Flash · Free</div>
+  </div>
+  {% if user.is_authenticated %}
+  <div style="display:flex; gap:16px; align-items:center;">
+    <span style="color:#d1d5db; font-size:14px;">Welcome, {{ user.first_name|default:user.username }}</span>
+    <a href="{% url 'logout' %}" style="background:#ef4444; color:white; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:600; cursor:pointer;">Logout</a>
+  </div>
+  {% endif %}
+</header>
+
+<main class="setup-main">
+  <div class="setup-wrap">
+
+    <!-- Hero -->
+    <div class="hero">
+      <h1>AI Interview Simulator<br/><span>Built for real preparation.</span></h1>
+      <p class="hero-sub">
+        Verbal · Real-time scoring · Expert feedback · HR + Technical + Coding rounds
+      </p>
+    </div>
+
+    <!-- Step 1: Domain -->
+    <div class="step-label">
+      <span class="step-num">01</span> Where is your expertise?
+    </div>
+
+    <!-- Domain & Language Input Grid -->
+    <div class="search-grid">
+      <!-- Domain Input/Search (Premium) -->
+      <div class="domain-search-container" style="margin-bottom: 0;">
+        <label class="input-lbl">Role / Domain</label>
+        <div class="search-input-wrapper">
+          <input type="text" id="domain-search-input" placeholder="e.g. Software Engineer..." autocomplete="off" />
+          <div class="search-icon-glow">🔍</div>
+        </div>
+      </div>
+
+      <!-- Language Input (Optional) -->
+      <div class="domain-search-container" style="margin-bottom: 0;">
+        <label class="input-lbl">Tech Stack (Optional)</label>
+        <div class="search-input-wrapper">
+          <input type="text" id="language-input" placeholder="e.g. Java, Python, React..." autocomplete="off" />
+          <div class="search-icon-glow">⚡</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="search-hint" style="text-align: center; margin-bottom: 24px;">Or choose a popular domain below</div>
+
+    <div class="domain-grid" id="domain-grid">
+      <div class="domain-card" data-domain="Software Engineering">
+        <span class="d-icon">💻</span>
+        <span class="d-name">Software Engineering</span>
+      </div>
+      <div class="domain-card" data-domain="Data Science">
+        <span class="d-icon">📊</span>
+        <span class="d-name">Data Science</span>
+      </div>
+      <div class="domain-card" data-domain="Product Management">
+        <span class="d-icon">🎯</span>
+        <span class="d-name">Product Management</span>
+      </div>
+      <div class="domain-card" data-domain="UI/UX Design">
+        <span class="d-icon">🎨</span>
+        <span class="d-name">UI/UX Design</span>
+      </div>
+      <div class="domain-card" data-domain="DevOps / Cloud">
+        <span class="d-icon">☁️</span>
+        <span class="d-name">DevOps / Cloud</span>
+      </div>
+      <div class="domain-card" data-domain="Cybersecurity">
+        <span class="d-icon">🔐</span>
+        <span class="d-name">Cybersecurity</span>
+      </div>
+      <div class="domain-card" data-domain="Machine Learning">
+        <span class="d-icon">🤖</span>
+        <span class="d-name">Machine Learning</span>
+      </div>
+      <div class="domain-card" data-domain="Business Analyst">
+        <span class="d-icon">📈</span>
+        <span class="d-name">Business Analyst</span>
+      </div>
+      <div class="domain-card" data-domain="Full Stack Development">
+        <span class="d-icon">🌐</span>
+        <span class="d-name">Full Stack</span>
+      </div>
+      <div class="domain-card" data-domain="Mobile Development">
+        <span class="d-icon">📱</span>
+        <span class="d-name">Mobile Dev</span>
+      </div>
+    </div>
+
+    <!-- Step 2: Rounds -->
+    <div class="step-label">
+      <span class="step-num">02</span> Select interview rounds
+    </div>
+    <div class="rounds-row">
+      <div class="round-pill active" data-round="hr">
+        <span class="rp-dot hr"></span>
+        HR Round
+        <span class="rp-desc">Behavioural &amp; soft skills</span>
+      </div>
+      <div class="round-pill active" data-round="technical">
+        <span class="rp-dot tech"></span>
+        Technical Round
+        <span class="rp-desc">Core concepts &amp; system design</span>
+      </div>
+      <div class="round-pill active" data-round="coding">
+        <span class="rp-dot code"></span>
+        Coding Round
+        <span class="rp-desc">Algorithms &amp; problem solving</span>
+      </div>
+    </div>
+
+    <!-- Step 3: Questions per round -->
+    <div class="step-label">
+      <span class="step-num">03</span> Questions per round
+    </div>
+    <div class="qpr-row">
+      <div class="qpr-card active" data-qpr="5">
+        <div class="qpr-num">5</div>
+        <div class="qpr-label">Quick</div>
+        <div class="qpr-time">~15 min</div>
+      </div>
+      <div class="qpr-card" data-qpr="10">
+        <div class="qpr-num">10</div>
+        <div class="qpr-label">Standard</div>
+        <div class="qpr-time">~30 min</div>
+      </div>
+      <div class="qpr-card" data-qpr="15">
+        <div class="qpr-num">15</div>
+        <div class="qpr-label">Deep Dive</div>
+        <div class="qpr-time">~45 min</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Your Career Stage -->
+    <div class="step-label">
+      <span class="step-num">04</span> Your career stage
+    </div>
+    <div class="exp-grid">
+      <div class="exp-card active" data-exp="fresher">
+        <div class="exp-glass"></div>
+        <span class="exp-icon">🌟</span>
+        <div class="exp-content">
+          <div class="exp-label">Fresher</div>
+          <p>Entry level / Graduate</p>
+        </div>
+      </div>
+      <div class="exp-card" data-exp="experienced">
+        <div class="exp-glass"></div>
+        <span class="exp-icon">🚀</span>
+        <div class="exp-content">
+          <div class="exp-label">Experienced</div>
+          <p>Proficient professional</p>
+        </div>
+      </div>
+      <div class="exp-card" data-exp="more_experienced">
+        <div class="exp-glass"></div>
+        <span class="exp-icon">👑</span>
+        <div class="exp-content">
+          <div class="exp-label">Senior / Lead</div>
+          <p>Expert / Management</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <p class="err" id="err"></p>
+
+    <!-- Start button -->
+    <button class="cta-btn" id="cta-btn" disabled>
+      Select a domain to begin
+    </button>
+
+    <p class="setup-note">
+      🎤 Use Chrome or Edge for the best voice experience
+    </p>
+
+  </div>
+</main>
+
+<script src="{% static 'yourinterviewer/js/setup.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>yourInterviewer — {{ session.domain }}</title>
+  <link rel="stylesheet" href="{% static 'yourinterviewer/css/style.css' %}"/>
+</head>
+<body class="interview-body">
+
+<header>
+  <button class="back-btn" onclick="App.goBack()" title="Go back to setup - stops AI speaking">← Back</button>
+  <div class="logo">your<span>Interviewer</span></div>
+  <div class="header-meta">
+    <span class="domain-chip">{{ session.domain }}</span>
+    {% if session.language %}
+      <span class="domain-chip" style="background: rgba(124, 111, 255, 0.2);">{{ session.language }}</span>
+    {% endif %}
+    <span class="qpr-chip">{{ session.questions_per_round }}Q / round</span>
+    <span class="pts-display">Total: <strong id="total-pts">0</strong> pts</span>
+  </div>
+</header>
+
+<div class="iv-layout">
+
+  <!-- ══════════ LEFT PANEL ══════════ -->
+  <div class="iv-left">
+
+    <!-- Interviewer card -->
+    <div class="card iv-card">
+      <div class="iv-avatar" id="avatar">🤖</div>
+      <div class="iv-info">
+        <div class="iv-name" id="iv-name">Preparing…</div>
+        <div class="iv-role" id="iv-role">yourInterviewer AI</div>
+      </div>
+      <div class="status-pill idle" id="status-pill">idle</div>
+    </div>
+
+    <!-- Round + progress -->
+    <div class="round-row">
+      <span class="round-chip" id="round-chip">—</span>
+      <span class="q-label"   id="q-label">Q — / —</span>
+      <div  class="q-dots"    id="q-dots"></div>
+    </div>
+
+    <!-- Question box -->
+    <div class="card q-card">
+      <div class="micro-label">Question</div>
+      <div class="q-text loading" id="q-text">
+        Preparing your interview…
+      </div>
+    </div>
+
+    <!-- Answer box -->
+    <div class="card ans-card">
+
+      <div class="ans-top">
+        <button class="mic-btn" id="mic-btn" disabled
+                title="Click to start / stop voice recording">
+          🎤
+        </button>
+        <div class="transcript-box">
+          <div class="micro-label">Your Answer</div>
+          <div class="transcript placeholder" id="transcript">
+            Click 🎤 to speak  or  type your answer below…
+          </div>
+        </div>
+      </div>
+
+      <div class="ans-bottom">
+        <div class="input-wrap">
+          <textarea
+            id="text-input"
+            placeholder="Type your answer here..."
+            rows="2">
+          </textarea>
+          <div class="input-hint">Enter to submit • Shift+Enter for new line</div>
+        </div>
+        <button class="submit-btn" id="submit-btn" disabled>
+          Submit Answer →
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- ══════════ END LEFT ══════════ -->
+
+  <!-- ══════════ RIGHT PANEL ══════════ -->
+  <div class="iv-right">
+
+    <!-- Live score card -->
+    <div class="card score-card">
+      <div class="micro-label">Live Score</div>
+
+      <div class="score-hero">
+        <span class="score-big" id="score-big">—</span>
+        <span class="score-den">/10</span>
+        <span class="stars" id="stars">☆☆☆☆☆</span>
+      </div>
+
+      <div class="bar-group">
+        <div class="bar-row">
+          <span class="bl">Score</span>
+          <div class="bt">
+            <div class="bf accent" id="bf-score" style="width:0%"></div>
+          </div>
+          <span class="bv" id="bv-score">—</span>
+        </div>
+        <div class="bar-row">
+          <span class="bl">Clarity</span>
+          <div class="bt">
+            <div class="bf pink" id="bf-clarity" style="width:0%"></div>
+          </div>
+          <span class="bv" id="bv-clarity">—</span>
+        </div>
+        <div class="bar-row">
+          <span class="bl">Depth</span>
+          <div class="bt">
+            <div class="bf green" id="bf-depth" style="width:0%"></div>
+          </div>
+          <span class="bv" id="bv-depth">—</span>
+        </div>
+      </div>
+
+      <div class="feedback-box" id="feedback-box">
+        Awaiting your answer…
+      </div>
+    </div>
+
+    <!-- Answer history -->
+    <div class="card hist-card">
+      <div class="micro-label">Answer History</div>
+      <div class="hist-list" id="hist-list">
+        <div class="hist-empty">No answers yet</div>
+      </div>
+    </div>
+
+    <!-- Next / finish button -->
+    <button class="next-btn hidden" id="next-btn">
+      Next Question →
+    </button>
+    
+    <button class="quit-btn" id="quit-btn" onclick="if(confirm('End interview early?')) { App.quit(); }">
+      End Interview early
+    </button>
+
+  </div>
+  <!-- ══════════ END RIGHT ══════════ -->
+
+</div>
+
+<!-- Pass Django session data to JS -->
+{{ session.id|json_script:"session-id" }}
+{{ session.domain|json_script:"session-domain" }}
+{{ session.rounds|json_script:"session-rounds" }}
+{{ qpr|json_script:"qpr" }}
+
+<script>
+  const SESSION_ID     = JSON.parse(document.getElementById('session-id').textContent);
+  const SESSION_DOMAIN = JSON.parse(document.getElementById('session-domain').textContent);
+  const SESSION_ROUNDS = JSON.parse(document.getElementById('session-rounds').textContent);
+  const QPR            = JSON.parse(document.getElementById('qpr').textContent);
+</script>
+
+<script src="{% static 'yourinterviewer/js/speech.js' %}"></script>
+<script src="{% static 'yourinterviewer/js/ui.js'     %}"></script>
+<script src="{% static 'yourinterviewer/js/app.js'    %}"></script>
+
+</body>
+</html>
